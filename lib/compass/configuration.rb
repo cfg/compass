@@ -32,6 +32,7 @@ module Compass
       :sass_options,
       attributes_for_directory(:cache, nil),
       :cache,
+      :enable_sourcemaps,
       # Helper configuration
       :asset_host,
       :asset_cache_buster,

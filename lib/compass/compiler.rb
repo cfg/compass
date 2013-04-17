@@ -138,16 +138,37 @@ module Compass
       res
     end
 
+    def should_generate_sourcemap?
+      Compass.configuration.enable_sourcemaps
+    end
+
+    def sourcemap_filename(css_filename)
+      css_filename + ".map"
+    end
+
+    def sourcemap_http_path(css_filename)
+      Compass.configuration.http_stylesheets_path + "/" + sourcemap_filename(File.basename(css_filename))
+    end
+
     # Compile one Sass file
     def compile(sass_filename, css_filename)
-      start_time = end_time = nil
-      css_content = logger.red do
-        timed do
-          engine(sass_filename, css_filename).render
+      start_time = end_time = sourcemap = nil
+      if should_generate_sourcemap?
+        css_content, sourcemap = logger.red do
+          timed do
+            engine(sass_filename, css_filename).render_with_sourcemap(sourcemap_http_path(css_filename))
+          end
+        end
+      else
+        css_content = logger.red do
+          timed do
+            engine(sass_filename, css_filename).render
+          end
         end
       end
       duration = options[:time] ? "(#{(css_content.__duration * 1000).round / 1000.0}s)" : ""
       write_file(css_filename, css_content, options.merge(:force => true, :extra => duration))
+      write_file(sourcemap_filename(css_filename), sourcemap.to_json(:css_path => css_filename, :sourcemap_path => sourcemap_filename(css_filename)), options.merge(:force => true)) if sourcemap
       Compass.configuration.run_stylesheet_saved(css_filename)
     end
 

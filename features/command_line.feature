@@ -106,6 +106,27 @@ Feature: Command Line
     And a css file tmp/utilities.css is reported created
     And a css file tmp/utilities.css is created
 
+  Scenario: compiling and generating a sourcemap for a specific file in a project
+    Given I am using the existing project in test/fixtures/stylesheets/sourcemap
+    And I run: compass compile sass/simple.sass
+    Then a sourcemap file tmp/simple.css.map is created
+    And a css file tmp/simple.css is created
+
+  Scenario: compiling without generating a sourcemap for a specific file in a project
+    Given I am using the existing project in test/fixtures/stylesheets/no_sourcemap
+    And I run: compass compile sass/simple.sass
+    Then a sourcemap file tmp/simple.css.map is not created
+
+  Scenario: compiling in production mode doesn't generate a sourcemap for a specific file in a project
+    Given I am using the existing project in test/fixtures/stylesheets/production
+    And I run: compass compile sass/simple.sass
+    Then a sourcemap file tmp/simple.css.map is not created
+
+  Scenario: compiling in development mode generates a sourcemap for a specific file in a project
+    Given I am using the existing project in test/fixtures/stylesheets/development
+    And I run: compass compile sass/simple.sass
+    Then a sourcemap file tmp/simple.css.map is created
+
   Scenario: Re-compiling a specific file in a project with no changes
     Given I am using the existing project in test/fixtures/stylesheets/compass
     When I run: compass compile

@@ -34,6 +34,14 @@ module Compass
         end
       end
 
+      def default_enable_sourcemaps
+        if top_level.environment == :development
+          true
+        else
+          false
+        end
+      end
+
       def default_line_comments
         top_level.environment == :development
       end
