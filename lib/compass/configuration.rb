@@ -18,11 +18,13 @@ module Compass
       :http_path,
       # Where are the various bits of the project
       attributes_for_directory(:css, :stylesheets),
-      attributes_for_directory(:sass, nil),
+      attributes_for_directory(:sass),
       attributes_for_directory(:images),
       attributes_for_directory(:generated_images),
       attributes_for_directory(:javascripts),
       attributes_for_directory(:fonts),
+      attributes_for_directory(:sourcemap),
+      attributes_for_directory(:source_unpack),
       attributes_for_directory(:extensions, nil),
       # Compilation options
       :output_style,

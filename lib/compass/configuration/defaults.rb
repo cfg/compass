@@ -22,6 +22,14 @@ module Compass
         File.join(top_level.css_dir, "fonts")
       end
 
+      def default_source_unpack_dir
+        File.join(top_level.css_dir, "sources")
+      end
+
+      def default_sourcemap_dir
+        top_level.css_dir
+      end
+
       def default_environment
         :development
       end
@@ -35,11 +43,7 @@ module Compass
       end
 
       def default_enable_sourcemaps
-        if top_level.environment == :development
-          true
-        else
-          false
-        end
+        top_level.environment == :development
       end
 
       def default_line_comments
@@ -94,6 +98,18 @@ module Compass
         end
       end
 
+      def default_source_unpack_path
+        if (pp = top_level.project_path) && (dir = top_level.source_unpack_dir)
+          Compass.projectize(dir, pp)
+        end
+      end
+
+      def default_sourcemap_path
+        if (pp = top_level.project_path) && (dir = top_level.sourcemap_dir)
+          Compass.projectize(dir, pp)
+        end
+      end
+
       def default_cache_path
         if (pp = top_level.project_path) && (dir = top_level.cache_dir)
           Compass.projectize(dir, pp)
@@ -120,6 +136,22 @@ module Compass
         http_root_relative top_level.http_images_dir
       end
 
+      def default_http_source_unpack_dir
+        top_level.source_unpack_dir
+      end
+
+      def default_http_source_unpack_path
+        http_root_relative top_level.http_source_unpack_dir
+      end
+
+      def default_http_sass_dir
+        top_level.sass_dir
+      end
+
+      def default_http_sass_path
+        http_root_relative top_level.http_sass_dir
+      end
+
       def default_http_stylesheets_dir
         top_level.css_dir
       end
@@ -142,6 +174,18 @@ module Compass
 
       def default_http_fonts_path
         http_root_relative top_level.http_fonts_dir
+      end
+
+      def default_http_sourcemap_dir
+        if sd = top_level.sourcemap_dir_without_default
+          sd
+        else
+          top_level.http_stylesheets_dir
+        end
+      end
+
+      def default_http_sourcemap_path
+        http_root_relative top_level.http_sourcemap_dir
       end
 
       def default_http_javascripts_dir

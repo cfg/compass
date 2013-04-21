@@ -1,3 +1,5 @@
+require 'compass/public_importer'
+
 module Compass
   class Compiler
 
@@ -15,7 +17,7 @@ module Compass
       self.sass_options.delete(:quiet)
       self.sass_options.update(sass_opts)
       self.sass_options[:cache_location] ||= determine_cache_location
-      self.sass_options[:importer] = self.importer = Sass::Importers::Filesystem.new(from)
+      self.sass_options[:importer] = self.importer = PublicImporter.new(from)
       self.sass_options[:compass] ||= {}
       self.sass_options[:compass][:logger] = self.logger
       self.sass_options[:compass][:environment] = Compass.configuration.environment
@@ -101,6 +103,7 @@ module Compass
 
       # Make sure the target directories exist
       target_directories.each {|dir| directory dir}
+      directory sourcemap_directory if should_generate_sourcemap?
 
       # Compile each sass file.
       result = timed do
@@ -142,12 +145,20 @@ module Compass
       Compass.configuration.enable_sourcemaps
     end
 
-    def sourcemap_filename(css_filename)
-      css_filename + ".map"
+    def sourcemap_directory
+      Compass.configuration.sourcemap_path
+    end
+
+    def sourcemap_basename(css_filename)
+      "#{File.basename(css_filename)}.map"
+    end
+
+    def corresponding_sourcemap_file(css_filename)
+      File.join(sourcemap_directory,sourcemap_basename(css_filename))
     end
 
     def sourcemap_http_path(css_filename)
-      Compass.configuration.http_stylesheets_path + "/" + sourcemap_filename(File.basename(css_filename))
+      "#{Compass.configuration.http_sourcemap_path}/#{sourcemap_basename(css_filename)}"
     end
 
     # Compile one Sass file
@@ -168,7 +179,10 @@ module Compass
       end
       duration = options[:time] ? "(#{(css_content.__duration * 1000).round / 1000.0}s)" : ""
       write_file(css_filename, css_content, options.merge(:force => true, :extra => duration))
-      write_file(sourcemap_filename(css_filename), sourcemap.to_json(:css_path => css_filename, :sourcemap_path => sourcemap_filename(css_filename)), options.merge(:force => true)) if sourcemap
+      if sourcemap
+        sourcemap_filename = corresponding_sourcemap_file(css_filename)
+        write_file(sourcemap_filename, sourcemap.to_json(:css_path => css_filename, :sourcemap_path => sourcemap_filename), options.merge(:force => true))
+      end
       Compass.configuration.run_stylesheet_saved(css_filename)
     end
 
