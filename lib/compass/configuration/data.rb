@@ -1,3 +1,5 @@
+require 'compass/public_importer'
+
 module Compass
   module Configuration
     # The Compass configuration data storage class manages configuration data that comes from a variety of
@@ -79,7 +81,13 @@ module Compass
       end
 
       def add_import_path(*paths)
-        paths.map!{|p| defined?(Pathname) && Pathname === p ? p.to_s : p}
+        options = (paths.pop if paths.last.is_a?(Hash)) || {}
+        name = options.fetch(:name, nil)
+        if name
+          paths = [NamedPathname.new(paths[0], name)]
+        else
+          paths.map!{|p| defined?(Pathname) && Pathname === p ? p.to_s : p}
+        end
         # The @added_import_paths variable works around an issue where
         # the additional_import_paths gets overwritten during parse
         @added_import_paths ||= []
