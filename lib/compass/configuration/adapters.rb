@@ -32,6 +32,7 @@ module Compass
         plugin_opts[:load_paths] ||= []
         plugin_opts[:load_paths] += load_paths
         plugin_opts[:load_paths] << Compass::SpriteImporter.new
+        plugin_opts[:sourcemap] = enable_sourcemaps
         plugin_opts
       end
 
