@@ -1,5 +1,3 @@
-require 'compass/public_importer'
-
 module Compass
   module Configuration
     # The Compass configuration data storage class manages configuration data that comes from a variety of
@@ -58,6 +56,12 @@ module Compass
       define_callback :stylesheet_error
       chained_method :run_stylesheet_error
 
+      # on_sourcemap_saved
+      # yields the filename
+      # usage: on_sourcemap_saved {|filename| do_something(filename) }
+      define_callback :sourcemap_saved
+      chained_method :run_sourcemap_saved
+
       inherited_accessor *ATTRIBUTES
 
       strip_trailing_separator *ATTRIBUTES.select{|a| a.to_s =~ /dir|path/}
@@ -81,10 +85,10 @@ module Compass
       end
 
       def add_import_path(*paths)
-        options = (paths.pop if paths.last.is_a?(Hash)) || {}
+        options = paths.last.is_a?(Hash) ? paths.pop : {}
         name = options.fetch(:name, nil)
         if name
-          paths = [NamedPathname.new(paths[0], name)]
+          paths = [Compass::Util::NamedPathname.new(paths[0], name)]
         else
           paths.map!{|p| defined?(Pathname) && Pathname === p ? p.to_s : p}
         end

@@ -26,4 +26,16 @@ module Compass::Util
     end
   end
 
+  def relative_path_from_strings(from, to)
+    Pathname.new(from).relative_path_from(Pathname.new(to)).to_s
+  end
+
+  class NamedPathname < Pathname
+    attr_accessor :name
+
+    def initialize(path, name)
+      @name = name
+      super(path)
+    end
+  end
 end

@@ -28,6 +28,18 @@ class CompassTest < Test::Unit::TestCase
     assert path.is_a?(String), "Path is not a string. Got: #{path.class.name}"
   end
 
+  def test_on_sourcemap_saved_callback
+    saved = false
+    path = nil
+    config = nil
+    before_compile = Proc.new do |config|
+      config.on_sourcemap_saved {|filepath| path = filepath; saved = true }
+    end
+    within_project(:sourcemap, before_compile)
+    assert saved, "Sourcemap callback didn't get called"
+    assert path.is_a?(String), "Path is not a string. Got: #{path.class.name}"
+  end
+
   # no project with errors exists to test aginst - leep of FAITH!
   # *chriseppstein flogs himself*
   def test_on_stylesheet_error_callback

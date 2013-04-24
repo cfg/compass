@@ -24,6 +24,7 @@ class ConfigurationTest < Test::Unit::TestCase
       sass_dir = "sass"
       images_dir = "img"
       javascripts_dir = "js"
+      sourcemap_dir = "maps"
       
       output_style = :nested
       
@@ -47,6 +48,7 @@ class ConfigurationTest < Test::Unit::TestCase
     assert_equal 'css', Compass.configuration.css_dir
     assert_equal 'img', Compass.configuration.images_dir
     assert_equal 'js', Compass.configuration.javascripts_dir
+    assert_equal 'maps', Compass.configuration.sourcemap_dir
 
     expected_lines = contents.string.split("\n").map{|l|l.strip}
     actual_lines = Compass.configuration.serialize.split("\n").map{|l|l.strip}
@@ -265,6 +267,21 @@ EXPECTED
 
     assert Compass.configuration.sass_load_paths.find{|p| p.is_a?(Sass::Importers::Filesystem) && p.root == "/tmp/foo"}
     assert Compass.configuration.to_sass_plugin_options[:load_paths].find{|p| p.is_a?(Sass::Importers::Filesystem) && p.root == "/tmp/foo"}
+  end
+
+  def test_additional_import_paths_can_be_named
+    contents = StringIO.new(<<-CONFIG)
+      http_path = "/"
+      project_path = "/home/chris/my_compass_project"
+      css_dir = "css"
+      additional_import_paths = ["../foo"]
+      add_import_path "/tmp/foo", :name => "foo"
+    CONFIG
+
+    Compass.add_configuration(contents, "test_additional_named_import_paths")
+
+    assert Compass.configuration.sass_load_paths.find{|p| p.is_a?(Compass::PublicImporter) && p.name == "foo"}
+    assert Compass.configuration.to_sass_plugin_options[:load_paths].find{|p| p.is_a?(Compass::Util::NamedPathname) && p.name == "foo"}
   end
 
   def test_config_with_pathname

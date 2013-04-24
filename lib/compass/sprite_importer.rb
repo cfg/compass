@@ -1,5 +1,7 @@
 require 'erb'
 require 'compass/sprite_importer/binding'
+require 'compass/actions'
+
 module Compass
   class SpriteImporter < Sass::Importers::Base
     VAILD_FILE_NAME       = /\A#{Sass::SCSS::RX::IDENT}\Z/
@@ -10,10 +12,15 @@ module Compass
     CONTENT_TEMPLATE_FILE = File.join(TEMPLATE_FOLDER, 'content.erb')
     CONTENT_TEMPLATE      = ERB.new(File.read(CONTENT_TEMPLATE_FILE))
 
+    attr_accessor :options, :working_path
+
+    include Actions
 
     def initialize(options = {})
       @http_source_unpack_path = options.fetch(:http_source_unpack_path, Compass.configuration.http_source_unpack_path)
       @source_unpack_path = options.fetch(:source_unpack_path, Compass.configuration.source_unpack_path)
+      @working_path = options.fetch(:working_path, Compass.configuration.project_path)
+      @options = options
       super()
     end
 
@@ -35,15 +42,24 @@ module Compass
       nil
     end
     
-    def public_url(uri)
+    def write_public_source(uri)
       dir = "#{@source_unpack_path}/compass/generated-sprites"
       name = self.class.sprite_name(uri)
       filename = "#{name}.scss"
-      FileUtils.mkdir_p(dir)
-      open(File.join(dir, filename), "w") do |f|
-        f.write(self.class.content_for_images(uri, name))
-      end
+      content = self.class.content_for_images(uri, name)
+      ensure_source_written!(dir, filename, content)
+    end
+
+    def public_url(uri)
+      name = self.class.sprite_name(uri)
+      filename = "#{name}.scss"
       "#{@http_source_unpack_path}/compass/generated-sprites/#{filename}"
+    end
+
+    def ensure_source_written!(dir, filename, content)
+      directory(dir)
+      to = File.join(dir, filename)
+      (@@written ||= {})[to] ||= write_file(to, content, {:quiet => true, :loud => [:create]})
     end
 
     def to_s

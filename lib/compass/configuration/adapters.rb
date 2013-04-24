@@ -1,5 +1,3 @@
-require 'compass/public_importer'
-
 module Compass
   module Configuration
     # The adapters module provides methods that make configuration data from a compass project
@@ -65,12 +63,12 @@ module Compass
         load_paths = []
         load_paths << sass_path if sass_path
         Compass::Frameworks::ALL.each do |f|
-          load_paths << NamedPathname.new(f.stylesheets_directory, f.name) if File.directory?(f.stylesheets_directory)
+          load_paths << Compass::Util::NamedPathname.new(f.stylesheets_directory, f.name) if File.directory?(f.stylesheets_directory)
         end
         load_paths += resolve_additional_import_paths
         load_paths.map! do |p|
           next p if p.respond_to?(:find_relative)
-          PublicImporter.new(p.to_s, :sass_path => source_unpack_path, :http_sass_path => http_source_unpack_path, :name => (p.name if p.respond_to?(:name)))
+          PublicImporter.new(p.to_s, :sass_path => source_unpack_path, :http_sass_path => http_source_unpack_path, :name => (p.name if p.respond_to?(:name)), :working_path => project_path)
         end
         load_paths << Compass::SpriteImporter.new
         load_paths

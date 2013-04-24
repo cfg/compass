@@ -1,5 +1,3 @@
-require 'compass/public_importer'
-
 module Compass
   class Compiler
 
@@ -17,7 +15,7 @@ module Compass
       self.sass_options.delete(:quiet)
       self.sass_options.update(sass_opts)
       self.sass_options[:cache_location] ||= determine_cache_location
-      self.sass_options[:importer] = self.importer = PublicImporter.new(from)
+      self.sass_options[:importer] = self.importer = PublicImporter.new(from, :working_path => working_path)
       self.sass_options[:compass] ||= {}
       self.sass_options[:compass][:logger] = self.logger
       self.sass_options[:compass][:environment] = Compass.configuration.environment
@@ -179,11 +177,23 @@ module Compass
       end
       duration = options[:time] ? "(#{(css_content.__duration * 1000).round / 1000.0}s)" : ""
       write_file(css_filename, css_content, options.merge(:force => true, :extra => duration))
+      Compass.configuration.run_stylesheet_saved(css_filename)
       if sourcemap
         sourcemap_filename = corresponding_sourcemap_file(css_filename)
         write_file(sourcemap_filename, sourcemap.to_json(:css_path => css_filename, :sourcemap_path => sourcemap_filename), options.merge(:force => true))
+        Compass.configuration.run_sourcemap_saved(sourcemap_filename)
+        write_sources(sourcemap) unless options[:dry_run]
       end
-      Compass.configuration.run_stylesheet_saved(css_filename)
+    end
+
+    def write_sources(sourcemap)
+      sources = {}
+      sourcemap.data.each do |m|
+        sources[m.input.file] ||= m.input.importer
+      end
+      sources.each do |path, importer|
+        importer.write_public_source(path) if importer.respond_to?(:write_public_source)
+      end
     end
 
     def should_compile?(sass_filename, css_filename)

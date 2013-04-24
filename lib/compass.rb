@@ -1,7 +1,7 @@
 module Compass
 end
 
-%w(dependencies util browser_support sass_extensions version errors quick_cache logger actions).each do |lib|
+%w(dependencies util browser_support sass_extensions version errors quick_cache logger actions public_importer).each do |lib|
   require "compass/#{lib}"
 end
 

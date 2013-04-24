@@ -1,5 +1,3 @@
-require 'compass/public_importer'
-
 module Compass
   module Configuration
     module Defaults
@@ -75,7 +73,7 @@ module Compass
 
       def default_css_dir
         if (pp = top_level.project_path) && (cp = top_level.css_path_without_default)
-          PublicImporter.relative_path_from_strings(cp, File.expand_path(pp))
+          Compass::Util.relative_path_from_strings(cp, File.expand_path(pp))
         end
       end
 
