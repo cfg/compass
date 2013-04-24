@@ -37,8 +37,6 @@ module Compass
       end
     end
 
-    private
-
     def self.relative_path_from_strings(from, to)
       Pathname.new(from).relative_path_from(Pathname.new(to)).to_s
     end

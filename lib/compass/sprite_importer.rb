@@ -11,6 +11,11 @@ module Compass
     CONTENT_TEMPLATE      = ERB.new(File.read(CONTENT_TEMPLATE_FILE))
 
 
+    def initialize(options = {})
+      @http_source_unpack_path = options.fetch(:http_source_unpack_path, Compass.configuration.http_source_unpack_path)
+      @source_unpack_path = options.fetch(:source_unpack_path, Compass.configuration.source_unpack_path)
+      super()
+    end
 
     # finds all sprite files
     def self.find_all_sprite_map_files(path)
@@ -30,6 +35,17 @@ module Compass
       nil
     end
     
+    def public_url(uri)
+      dir = "#{@source_unpack_path}/compass/generated-sprites"
+      name = self.class.sprite_name(uri)
+      filename = "#{name}.scss"
+      FileUtils.mkdir_p(dir)
+      open(File.join(dir, filename), "w") do |f|
+        f.write(self.class.content_for_images(uri, name))
+      end
+      "#{@http_source_unpack_path}/compass/generated-sprites/#{filename}"
+    end
+
     def to_s
       self.class.name
     end
