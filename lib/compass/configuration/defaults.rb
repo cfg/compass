@@ -1,3 +1,5 @@
+require 'compass/public_importer'
+
 module Compass
   module Configuration
     module Defaults
@@ -23,7 +25,12 @@ module Compass
       end
 
       def default_source_unpack_dir
-        File.join(top_level.css_dir, "sources")
+        cd = top_level.css_dir
+        if cd
+          File.join(cd, "sources")
+        else
+          "sources"
+        end
       end
 
       def default_sourcemap_dir
@@ -63,6 +70,12 @@ module Compass
       def default_css_path
         if (pp = top_level.project_path) && (dir = top_level.css_dir)
           Compass.projectize(dir, pp)
+        end
+      end
+
+      def default_css_dir
+        if (pp = top_level.project_path) && (cp = top_level.css_path_without_default)
+          PublicImporter.relative_path_from_strings(cp, File.expand_path(pp))
         end
       end
 

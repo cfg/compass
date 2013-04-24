@@ -30,16 +30,16 @@ module Compass
       else
         public_sass_path = @sass_path
         public_sass_path = File.join(@sass_path, @name) if @name
-        subdir = File.dirname(File.join(public_sass_path, relative_path_from_strings(uri, root)))
+        subdir = File.dirname(File.join(public_sass_path, PublicImporter.relative_path_from_strings(uri, root)))
         FileUtils.mkdir_p(subdir)
         FileUtils.cp(uri, subdir)
-        relative_path_from_strings(File.join(subdir,File.basename(uri)), @sass_path)
+        PublicImporter.relative_path_from_strings(File.join(subdir,File.basename(uri)), @sass_path)
       end
     end
 
     private
 
-    def relative_path_from_strings(from, to)
+    def self.relative_path_from_strings(from, to)
       Pathname.new(from).relative_path_from(Pathname.new(to)).to_s
     end
   end

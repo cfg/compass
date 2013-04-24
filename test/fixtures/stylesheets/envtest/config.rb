@@ -5,5 +5,6 @@ sass_dir = "sass"
 images_dir = "images"
 output_style = :nested
 line_comments = false
+enable_sourcemaps = false
 
 disable_warnings = true
