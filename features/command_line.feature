@@ -107,10 +107,12 @@ Feature: Command Line
     And a css file tmp/utilities.css is created
 
   Scenario: compiling and generating a sourcemap for a specific file in a project
-    Given I am using the existing project in test/fixtures/stylesheets/sourcemap
+    Given I am using the existing project in test/fixtures/stylesheets/sourcemap_sprite
     And I run: compass compile sass/simple.sass
     Then a sourcemap file tmp/simple.css.map is created
     And a css file tmp/simple.css is created
+    And a source file sources/compass/compass/css3/_border-radius.scss is created
+    And a source file sources/compass/generated-sprites/icons.scss is created
 
   Scenario: compiling without generating a sourcemap for a specific file in a project
     Given I am using the existing project in test/fixtures/stylesheets/no_sourcemap
